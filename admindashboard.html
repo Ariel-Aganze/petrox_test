@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PETROX | Tableau de bord</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Font Family: Inter for Enterprise Look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        petrox: {
+                            red: '#DC2626', // Primary Brand Color
+                            dark: '#111827',
+                            light: '#F3F4F6'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom scrollbar for mobile nav if items overflow */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Smooth transitions */
+        .btn-toggle {
+            transition: all 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+
+    <!-- ========================================== -->
+    <!-- DESKTOP TOP NAVIGATION -->
+    <!-- ========================================== -->
+    <header class="fixed top-0 w-full bg-white shadow-sm z-50 h-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
+            
+            <!-- Logo Area -->
+            <div class="flex-shrink-0 flex items-center gap-2">
+                <!-- Simple Logo Icon -->
+                <div class="w-8 h-8 bg-petrox-red rounded-lg flex items-center justify-center text-white font-bold text-lg">
+                    P
+                </div>
+                <span class="text-2xl font-bold tracking-tight text-gray-900">PETROX</span>
+            </div>
+
+            <!-- Desktop Nav Links -->
+            <nav class="hidden lg:flex space-x-8">
+                <a href="#" class="text-petrox-red border-b-2 border-petrox-red px-1 pt-1 text-sm font-medium flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    Tableau de bord
+                </a>
+                <a href="petrox-users.html" class="text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium transition-colors">Utilisateurs</a>
+                <a href="petrox-expenses.html" class="text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium transition-colors">Dépenses</a>
+                <a href="petrox-documents.html" class="text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium transition-colors">Documents</a>
+                <a href="petrox-fuel.html" class="text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium transition-colors">Carburants</a>
+            </nav>
+
+            <!-- Right Side (Notifications & Profile) -->
+            <div class="flex items-center space-x-4">
+                <button class="text-gray-400 hover:text-petrox-red transition relative">
+                    <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-petrox-red ring-2 ring-white"></span>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                </button>
+                <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center border border-gray-300 overflow-hidden">
+                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========================================== -->
+    <!-- MAIN CONTENT -->
+    <!-- ========================================== -->
+    <main class="pt-24 pb-28 lg:pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        
+        <!-- Header Section -->
+        <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Vue d'ensemble</h1>
+                <p class="text-sm text-gray-500 mt-1">Bienvenue sur le système de gestion PETROX.</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition">
+                    Exporter Rapport
+                </button>
+                <button class="bg-petrox-red text-white hover:bg-red-700 px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Nouvelle Saisie
+                </button>
+            </div>
+        </div>
+
+        <!-- DASHBOARD GRID -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            <!-- LEFT COLUMN: KPI CARDS -->
+            <div class="lg:col-span-1 flex flex-col gap-6">
+                
+                <!-- KPI Card 1: Ventes -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 relative overflow-hidden group hover:shadow-md transition">
+                    <div class="absolute left-0 top-0 h-full w-1 bg-petrox-red"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Ventes du jour</p>
+                            <h3 class="text-2xl font-bold text-gray-900 mt-1">2,450.00 $</h3>
+                        </div>
+                        <div class="p-2 bg-red-50 rounded-lg text-petrox-red">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                        </div>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <span class="text-green-600 font-medium flex items-center">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                            +12.5%
+                        </span>
+                        <span class="text-gray-400 ml-2">vs hier</span>
+                    </div>
+                </div>
+
+                <!-- KPI Card 2: Dépenses -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 relative overflow-hidden group hover:shadow-md transition">
+                    <div class="absolute left-0 top-0 h-full w-1 bg-gray-800"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Dépenses du jour</p>
+                            <h3 class="text-2xl font-bold text-gray-900 mt-1">840.00 $</h3>
+                        </div>
+                        <div class="p-2 bg-gray-100 rounded-lg text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        </div>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <span class="text-red-500 font-medium flex items-center">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                            -2.4%
+                        </span>
+                        <span class="text-gray-400 ml-2">vs hier</span>
+                    </div>
+                </div>
+
+                <!-- Small Summary Box (Bonus) -->
+                <div class="bg-gray-900 rounded-xl p-6 text-white shadow-lg">
+                    <p class="text-xs text-gray-400 uppercase tracking-wider">Net Profit (Est.)</p>
+                    <div class="mt-2 text-3xl font-bold">1,610 $</div>
+                    <div class="mt-4 w-full bg-gray-700 h-1.5 rounded-full">
+                        <div class="bg-petrox-red h-1.5 rounded-full" style="width: 75%"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- CENTER/RIGHT COLUMN: GRAPH SECTION -->
+            <div class="lg:col-span-3 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                
+                <!-- Graph Controls -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+                    <h2 class="text-lg font-bold text-gray-900">Analyses Financières</h2>
+                    
+                    <div class="flex flex-wrap gap-2">
+                        <!-- Type Selector -->
+                        <div class="bg-gray-100 p-1 rounded-lg flex text-xs sm:text-sm font-medium">
+                            <button onclick="updateChart('sales')" class="px-3 py-1.5 rounded-md bg-white text-gray-900 shadow-sm focus:outline-none transition btn-toggle">Ventes</button>
+                            <button onclick="updateChart('expenses')" class="px-3 py-1.5 rounded-md text-gray-500 hover:text-gray-900 focus:outline-none transition btn-toggle">Dépenses</button>
+                            <button onclick="updateChart('compare')" class="px-3 py-1.5 rounded-md text-gray-500 hover:text-gray-900 focus:outline-none transition btn-toggle">Comparer</button>
+                        </div>
+
+                        <!-- Time Selector -->
+                        <select class="bg-white border border-gray-300 text-gray-700 text-xs sm:text-sm rounded-lg focus:ring-petrox-red focus:border-petrox-red block p-1.5">
+                            <option>Aujourd'hui</option>
+                            <option>Cette Semaine</option>
+                            <option>Ce Mois</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Graph Canvas -->
+                <div class="relative w-full h-72 sm:h-80">
+                    <canvas id="financeChart"></canvas>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- SECTION 3: TRANSACTIONS TABLE -->
+        <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="text-lg font-bold text-gray-900">Transactions Récentes</h3>
+                <a href="#" class="text-sm text-petrox-red font-medium hover:underline">Voir tout &rarr;</a>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">Date</th>
+                            <th scope="col" class="px-6 py-3">Type</th>
+                            <th scope="col" class="px-6 py-3">Montant</th>
+                            <th scope="col" class="px-6 py-3">Devise</th>
+                            <th scope="col" class="px-6 py-3">Taux (Actuel)</th>
+                            <th scope="col" class="px-6 py-3">Taux (Préc.)</th>
+                            <th scope="col" class="px-6 py-3">Variation</th>
+                            <th scope="col" class="px-6 py-3 text-right">Résultat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Row 1 -->
+                        <tr class="bg-white border-b hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 font-medium text-gray-900">07 Jan 2026</td>
+                            <td class="px-6 py-4">
+                                <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">Vente</span>
+                            </td>
+                            <td class="px-6 py-4 font-bold">1,200.00</td>
+                            <td class="px-6 py-4">USD</td>
+                            <td class="px-6 py-4">1.00</td>
+                            <td class="px-6 py-4 text-gray-400">0.99</td>
+                            <td class="px-6 py-4 text-green-600 flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                                1.01%
+                            </td>
+                            <td class="px-6 py-4 text-right font-bold text-green-600">+ Profit</td>
+                        </tr>
+                        <!-- Row 2 -->
+                        <tr class="bg-white border-b hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 font-medium text-gray-900">07 Jan 2026</td>
+                            <td class="px-6 py-4">
+                                <span class="bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-0.5 rounded">Dépense</span>
+                            </td>
+                            <td class="px-6 py-4 font-bold">450.00</td>
+                            <td class="px-6 py-4">EUR</td>
+                            <td class="px-6 py-4">0.92</td>
+                            <td class="px-6 py-4 text-gray-400">0.91</td>
+                            <td class="px-6 py-4 text-red-500 flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                                0.8%
+                            </td>
+                            <td class="px-6 py-4 text-right font-bold text-gray-500">N/A</td>
+                        </tr>
+                        <!-- Row 3 -->
+                        <tr class="bg-white border-b hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 font-medium text-gray-900">06 Jan 2026</td>
+                            <td class="px-6 py-4">
+                                <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">Vente</span>
+                            </td>
+                            <td class="px-6 py-4 font-bold">3,100.00</td>
+                            <td class="px-6 py-4">USD</td>
+                            <td class="px-6 py-4">1.00</td>
+                            <td class="px-6 py-4 text-gray-400">1.02</td>
+                            <td class="px-6 py-4 text-red-500 flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                                -1.9%
+                            </td>
+                            <td class="px-6 py-4 text-right font-bold text-red-500">- Perte (FX)</td>
+                        </tr>
+                        <!-- Row 4 -->
+                        <tr class="bg-white border-b hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 font-medium text-gray-900">06 Jan 2026</td>
+                            <td class="px-6 py-4">
+                                <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">Maintenance</span>
+                            </td>
+                            <td class="px-6 py-4 font-bold">120.00</td>
+                            <td class="px-6 py-4">USD</td>
+                            <td class="px-6 py-4">1.00</td>
+                            <td class="px-6 py-4 text-gray-400">1.00</td>
+                            <td class="px-6 py-4 text-gray-400">0.0%</td>
+                            <td class="px-6 py-4 text-right font-bold text-gray-500">N/A</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- MOBILE BOTTOM NAVIGATION (App Style) -->
+    <!-- ========================================== -->
+    <nav class="lg:hidden fixed bottom-0 w-full bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50 overflow-x-auto no-scrollbar">
+        <div class="flex justify-between items-center h-16 px-2 min-w-max w-full">
+            
+            <!-- Dashboard (Active) -->
+            <a href="#" class="flex flex-col items-center justify-center px-3 text-petrox-red w-20">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                <span class="text-[10px] font-medium leading-none">Accueil</span>
+            </a>
+
+            <!-- Users -->
+            <a href="petrox-users.html" class="flex flex-col items-center justify-center px-3 text-gray-500 hover:text-gray-900 w-20 transition">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <span class="text-[10px] font-medium leading-none">Utilisateurs</span>
+            </a>
+
+            <!-- Expenses -->
+            <a href="petrox-expenses.html" class="flex flex-col items-center justify-center px-3 text-gray-500 hover:text-gray-900 w-20 transition">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-[10px] font-medium leading-none">Dépenses</span>
+            </a>
+
+            <!-- Fuel -->
+            <a href="petrox-fuel.html" class="flex flex-col items-center justify-center px-3 text-gray-500 hover:text-gray-900 w-20 transition">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                <span class="text-[10px] font-medium leading-none">Carburants</span>
+            </a>
+
+            <!-- Docs -->
+            <a href="petrox-documents.html" class="flex flex-col items-center justify-center px-3 text-gray-500 hover:text-gray-900 w-20 transition">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span class="text-[10px] font-medium leading-none">Docs</span>
+            </a>
+            
+            <!-- Profil -->
+            <a href="#" class="flex flex-col items-center justify-center px-3 text-gray-500 hover:text-gray-900 w-20 transition">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                <span class="text-[10px] font-medium leading-none">Profil</span>
+            </a>
+
+        </div>
+    </nav>
+
+    <!-- ========================================== -->
+    <!-- CHART.JS LOGIC -->
+    <!-- ========================================== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ctx = document.getElementById('financeChart').getContext('2d');
+            
+            // Sample Data
+            const hours = ['06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'];
+            const salesData = [120, 450, 780, 1100, 950, 1300, 1500, 900];
+            const expensesData = [50, 100, 120, 200, 150, 80, 100, 40];
+
+            // Chart Configuration
+            window.myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: hours,
+                    datasets: [
+                        {
+                            label: 'Ventes',
+                            data: salesData,
+                            borderColor: '#DC2626', // Petrox Red
+                            backgroundColor: 'rgba(220, 38, 38, 0.05)',
+                            borderWidth: 2,
+                            tension: 0.4, // Smooth curve
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#DC2626',
+                            pointHoverBackgroundColor: '#DC2626',
+                            pointHoverBorderColor: '#fff',
+                            fill: true
+                        },
+                        {
+                            label: 'Dépenses',
+                            data: expensesData, // Hidden by default if needed, or shown
+                            borderColor: '#4B5563', // Gray 600
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            borderDash: [5, 5], // Dashed line for expenses
+                            tension: 0.4,
+                            pointRadius: 0,
+                            pointHoverRadius: 4,
+                            hidden: true // Start with sales only
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            display: false // Using custom toggles
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            padding: 10,
+                            cornerRadius: 8,
+                            displayColors: true
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: {
+                                borderDash: [2, 4],
+                                color: '#f3f4f6',
+                                drawBorder: false,
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value;
+                                },
+                                font: {
+                                    family: 'Inter',
+                                    size: 11
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Inter',
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        // Toggle Logic
+        function updateChart(view) {
+            const salesDataset = window.myChart.data.datasets[0];
+            const expensesDataset = window.myChart.data.datasets[1];
+            
+            // UI Button Reset
+            const buttons = document.querySelectorAll('.btn-toggle');
+            buttons.forEach(btn => {
+                btn.className = "px-3 py-1.5 rounded-md text-gray-500 hover:text-gray-900 focus:outline-none transition btn-toggle";
+            });
+            event.target.className = "px-3 py-1.5 rounded-md bg-white text-gray-900 shadow-sm focus:outline-none transition btn-toggle";
+
+            if (view === 'sales') {
+                salesDataset.hidden = false;
+                expensesDataset.hidden = true;
+            } else if (view === 'expenses') {
+                salesDataset.hidden = true;
+                expensesDataset.hidden = false;
+            } else if (view === 'compare') {
+                salesDataset.hidden = false;
+                expensesDataset.hidden = false;
+            }
+            window.myChart.update();
+        }
+    </script>
+</body>
+</html>

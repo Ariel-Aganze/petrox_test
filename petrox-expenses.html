@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PETROX | Gestion des Dépenses</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Font Family: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        petrox: {
+                            red: '#DC2626', // Primary Brand Color
+                            dark: '#111827',
+                            light: '#F9FAFB',
+                            hover: '#B91C1C'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        body.modal-open { overflow: hidden; }
+        
+        /* Custom Switch for Toggle */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #DC2626;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #DC2626;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+
+    <!-- ========================================== -->
+    <!-- DESKTOP TOP NAVIGATION -->
+    <!-- ========================================== -->
+    <header class="fixed top-0 w-full bg-white shadow-sm z-40 h-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
+            <div class="flex-shrink-0 flex items-center gap-2">
+                <div class="w-8 h-8 bg-petrox-red rounded-lg flex items-center justify-center text-white font-bold text-lg">P</div>
+                <span class="text-2xl font-bold tracking-tight text-gray-900">PETROX</span>
+            </div>
+            <nav class="hidden lg:flex space-x-8">
+                <a href="admindashboard.html" class="text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium transition-colors">Tableau de bord</a>
+                <a href="petrox-users.html" class="text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium transition-colors">Utilisateurs</a>
+                <a href="#" class="text-petrox-red border-b-2 border-petrox-red px-1 pt-1 text-sm font-medium flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Dépenses
+                </a>
+                <a href="petrox-documents.html" class="text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium transition-colors">Documents</a>
+                <a href="petrox-fuel.html" class="text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium transition-colors">Carburants</a>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center border border-gray-300 overflow-hidden cursor-pointer">
+                    <span class="font-bold text-xs text-gray-600">AD</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========================================== -->
+    <!-- MAIN CONTENT -->
+    <!-- ========================================== -->
+    <main class="pt-24 pb-28 lg:pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        
+        <!-- Page Header -->
+        <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Dépenses</h1>
+                <p class="text-sm text-gray-500 mt-1">Janvier 2026 • Aperçu financier</p>
+            </div>
+            
+            <!-- Desktop Action Buttons -->
+            <div class="hidden md:flex gap-3">
+                <button onclick="openModal('modal-categories')" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                    Catégories
+                </button>
+                <button onclick="openModal('modal-list')" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                    Liste des dépenses
+                </button>
+                <button onclick="openModal('modal-new')" class="bg-petrox-red text-white hover:bg-petrox-hover px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Nouvelle dépense
+                </button>
+            </div>
+        </div>
+
+        <!-- GRID LAYOUT -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            <!-- LEFT: STATISTICS PANEL -->
+            <div class="lg:col-span-1 flex flex-col gap-4">
+                
+                <!-- Stats Card 1: USD -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 relative overflow-hidden">
+                    <div class="absolute right-0 top-0 p-3 opacity-10">
+                         <svg class="w-16 h-16 text-petrox-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Dépenses (USD)</p>
+                    <h2 class="text-3xl font-bold text-gray-900 mt-2">$12,450<span class="text-lg text-gray-400 font-normal">.00</span></h2>
+                    <div class="mt-4 flex items-center text-xs text-red-500 font-medium">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                        +8.2% vs mois dernier
+                    </div>
+                </div>
+
+                <!-- Stats Card 2: FC -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 relative overflow-hidden">
+                    <div class="absolute right-0 top-0 p-3 opacity-10">
+                        <svg class="w-16 h-16 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    </div>
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Dépenses (FC)</p>
+                    <h2 class="text-2xl font-bold text-gray-900 mt-2">450,000 <span class="text-sm font-normal text-gray-500">FC</span></h2>
+                </div>
+
+                <!-- Stats Card 3: Summary -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex flex-col justify-between h-full">
+                    <div class="mb-4">
+                        <p class="text-xs font-semibold text-gray-400 uppercase">Transactions</p>
+                        <h3 class="text-xl font-bold text-gray-900">142</h3>
+                        <p class="text-xs text-gray-500">Dépenses ce mois</p>
+                    </div>
+                    <div class="border-t border-gray-100 pt-4">
+                        <p class="text-xs font-semibold text-gray-400 uppercase">Top Catégorie</p>
+                        <div class="flex items-center gap-2 mt-2">
+                            <div class="p-1.5 bg-orange-100 text-orange-600 rounded">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">Approvisionnement</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: MAIN CHART AREA -->
+            <div class="lg:col-span-3 bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-lg font-bold text-gray-900">Analyse des Dépenses</h2>
+                    
+                    <!-- Chart Toggle -->
+                    <div class="flex items-center bg-gray-100 rounded-lg p-1">
+                        <button onclick="toggleChart('USD')" id="btn-usd" class="px-3 py-1 text-xs font-medium rounded-md shadow bg-white text-gray-900 transition">USD</button>
+                        <button onclick="toggleChart('FC')" id="btn-fc" class="px-3 py-1 text-xs font-medium rounded-md text-gray-500 hover:text-gray-900 transition">FC</button>
+                    </div>
+                </div>
+
+                <div class="flex-grow relative w-full h-80">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+                
+                <!-- Mobile Only Action Buttons (Stacked below chart on mobile) -->
+                <div class="md:hidden grid grid-cols-2 gap-3 mt-6">
+                    <button onclick="openModal('modal-list')" class="col-span-1 bg-white border border-gray-300 text-gray-700 py-3 rounded-lg text-sm font-medium shadow-sm flex justify-center items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                        Liste
+                    </button>
+                    <button onclick="openModal('modal-categories')" class="col-span-1 bg-white border border-gray-300 text-gray-700 py-3 rounded-lg text-sm font-medium shadow-sm flex justify-center items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                        Catégories
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <!-- ========================================== -->
+    <nav class="lg:hidden fixed bottom-0 w-full bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40 overflow-x-auto no-scrollbar">
+        <div class="flex justify-between items-center h-16 px-2 min-w-max w-full">
+            <a href="admindashboard.html" class="flex flex-col items-center justify-center px-3 text-gray-500 hover:text-gray-900 w-20 transition">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                <span class="text-[10px] font-medium leading-none">Accueil</span>
+            </a>
+            <a href="petrox-users.html" class="flex flex-col items-center justify-center px-3 text-gray-500 hover:text-gray-900 w-20 transition">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <span class="text-[10px] font-medium leading-none">Utilisateurs</span>
+            </a>
+            
+            <!-- Active Expenses -->
+            <a href="#" class="flex flex-col items-center justify-center px-3 text-petrox-red w-20">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-[10px] font-medium leading-none">Dépenses</span>
+            </a>
+
+            <a href="petrox-fuel.html" class="flex flex-col items-center justify-center px-3 text-gray-500 hover:text-gray-900 w-20 transition">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                <span class="text-[10px] font-medium leading-none">Carburants</span>
+            </a>
+            <a href="petrox-documents.html" class="flex flex-col items-center justify-center px-3 text-gray-500 hover:text-gray-900 w-20 transition">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span class="text-[10px] font-medium leading-none">Docs</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Mobile Floating Action Button -->
+    <div class="lg:hidden fixed bottom-20 right-4 z-40">
+        <button onclick="openModal('modal-new')" class="bg-petrox-red text-white p-4 rounded-full shadow-lg hover:bg-red-700 transition transform hover:scale-105">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+        </button>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- MODAL 1: NOUVELLE DÉPENSE -->
+    <!-- ========================================== -->
+    <div id="modal-new" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity backdrop-blur-sm" onclick="closeModal('modal-new')"></div>
+            <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                    <div class="flex justify-between items-center mb-5">
+                        <h3 class="text-lg leading-6 font-bold text-gray-900">Enregistrer une dépense</h3>
+                        <button onclick="closeModal('modal-new')" class="text-gray-400 hover:text-gray-500">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                    
+                    <form class="space-y-4">
+                        <!-- Date & Category -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700">Date</label>
+                                <input type="date" value="2026-01-08" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-petrox-red focus:ring-petrox-red sm:text-sm border p-2">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700">Catégorie</label>
+                                <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-petrox-red focus:ring-petrox-red sm:text-sm border p-2 bg-white">
+                                    <option>Approvisionnement</option>
+                                    <option>Maintenance</option>
+                                    <option>Salaires</option>
+                                    <option>Logistique</option>
+                                    <option>Autre</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Amount Section -->
+                        <div class="p-3 bg-gray-50 rounded-lg border border-gray-100 space-y-3">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">Devise Originale</label>
+                                <div class="flex gap-4">
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" class="form-radio text-petrox-red" name="currency" checked>
+                                        <span class="ml-2 text-sm">USD ($)</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" class="form-radio text-petrox-red" name="currency">
+                                        <span class="ml-2 text-sm">FC (Francs)</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500">Montant (USD)</label>
+                                    <input type="number" placeholder="0.00" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-petrox-red focus:ring-petrox-red sm:text-sm border p-2 font-semibold">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500">Montant (FC)</label>
+                                    <input type="number" placeholder="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 sm:text-sm border p-2 text-gray-500 cursor-not-allowed" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- File Upload -->
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700">Reçu / Facture</label>
+                            <input type="file" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-petrox-red hover:file:bg-gray-100 border border-gray-300 rounded-md">
+                        </div>
+
+                        <!-- Description -->
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700">Description</label>
+                            <textarea rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-petrox-red focus:ring-petrox-red sm:text-sm border p-2"></textarea>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-red-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">Enregistrer</button>
+                    <button type="button" onclick="closeModal('modal-new')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Annuler</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 2: LISTE DES DÉPENSES (TABLE) -->
+    <!-- ========================================== -->
+    <div id="modal-list" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity backdrop-blur-sm" onclick="closeModal('modal-list')"></div>
+            
+            <!-- Wide Modal -->
+            <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full h-[90vh] flex flex-col">
+                
+                <!-- Header -->
+                <div class="bg-white px-6 py-4 border-b border-gray-200 flex justify-between items-center flex-shrink-0">
+                    <div>
+                        <h3 class="text-lg leading-6 font-bold text-gray-900">Liste des dépenses</h3>
+                        <p class="text-xs text-gray-500">Historique complet et filtres</p>
+                    </div>
+                    <button onclick="closeModal('modal-list')" class="text-gray-400 hover:text-gray-500">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+
+                <!-- Filters & Summary -->
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex-shrink-0">
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-4">
+                        <input type="date" value="2026-01-01" class="text-xs border-gray-300 rounded-md shadow-sm">
+                        <input type="date" value="2026-01-31" class="text-xs border-gray-300 rounded-md shadow-sm">
+                        <select class="text-xs border-gray-300 rounded-md shadow-sm bg-white"><option>Toutes catégories</option></select>
+                        <select class="text-xs border-gray-300 rounded-md shadow-sm bg-white"><option>Tous les types</option></select>
+                        <button class="bg-petrox-red text-white text-xs font-medium rounded-md shadow-sm hover:bg-red-700">Filtrer</button>
+                    </div>
+                    <div class="flex justify-between items-center text-sm font-medium bg-white p-2 rounded border border-gray-200">
+                        <span class="text-gray-500">Total Période: <span class="text-gray-900">01/01 - 31/01/2026</span></span>
+                        <div class="flex gap-4">
+                            <span class="text-petrox-red">Total USD: $12,450.00</span>
+                            <span class="text-gray-700">Total FC: 450,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Content (Scrollable) -->
+                <div class="overflow-y-auto flex-grow">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50 sticky top-0 z-10">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catégorie</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Montant (USD)</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Montant (FC)</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200 text-sm">
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-gray-500">#4092</td>
+                                <td class="px-6 py-4 whitespace-nowrap">08 Jan 2026</td>
+                                <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">Approvisionnement</span></td>
+                                <td class="px-6 py-4 text-gray-500 truncate max-w-xs">Livraison Carburant Zone B</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right font-medium">$8,200.00</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-gray-500">-</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button class="text-indigo-600 hover:text-indigo-900 mr-2">Voir</button>
+                                    <button class="text-red-600 hover:text-red-900">Supprimer</button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-gray-500">#4091</td>
+                                <td class="px-6 py-4 whitespace-nowrap">07 Jan 2026</td>
+                                <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Maintenance</span></td>
+                                <td class="px-6 py-4 text-gray-500 truncate max-w-xs">Réparation pompe 3</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right font-medium">$150.00</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-gray-500">185,000</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button class="text-indigo-600 hover:text-indigo-900 mr-2">Voir</button>
+                                    <button class="text-red-600 hover:text-red-900">Supprimer</button>
+                                </td>
+                            </tr>
+                            <!-- More rows would go here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="bg-white px-4 py-3 border-t border-gray-200 flex items-center justify-between sm:px-6 flex-shrink-0">
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">Affichage <span class="font-medium">1</span> à <span class="font-medium">10</span> sur <span class="font-medium">142</span> résultats</p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Précédent</a>
+                                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">1</a>
+                                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">2</a>
+                                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">3</a>
+                                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Suivant</a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 3: CATÉGORIES -->
+    <!-- ========================================== -->
+    <div id="modal-categories" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity backdrop-blur-sm" onclick="closeModal('modal-categories')"></div>
+            
+            <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                    <div class="flex justify-between items-center mb-5">
+                        <h3 class="text-lg leading-6 font-bold text-gray-900">Gestion des Catégories</h3>
+                        <button onclick="closeModal('modal-categories')" class="text-gray-400 hover:text-gray-500">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <!-- Add New Form -->
+                    <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <h4 class="text-xs font-bold text-gray-500 uppercase mb-3">Ajouter une nouvelle</h4>
+                        <div class="space-y-3">
+                            <input type="text" placeholder="Nom de la catégorie" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-petrox-red focus:ring-petrox-red sm:text-sm border p-2">
+                            <div class="flex gap-2">
+                                <select class="block w-1/2 rounded-md border-gray-300 shadow-sm focus:border-petrox-red focus:ring-petrox-red sm:text-sm border p-2 bg-white">
+                                    <option>Entreprise</option>
+                                    <option>Opérationnel</option>
+                                </select>
+                                <button class="w-1/2 bg-gray-900 text-white rounded-md text-sm hover:bg-gray-800">Ajouter</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- List -->
+                    <h4 class="text-xs font-bold text-gray-500 uppercase mb-3">Catégories existantes</h4>
+                    <ul class="divide-y divide-gray-200 border rounded-md">
+                        <li class="px-4 py-3 flex items-center justify-between hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <span class="h-2 w-2 bg-green-400 rounded-full mr-3"></span>
+                                <span class="text-sm font-medium text-gray-900">Approvisionnement</span>
+                            </div>
+                            <span class="text-xs text-gray-500">Entreprise</span>
+                        </li>
+                        <li class="px-4 py-3 flex items-center justify-between hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <span class="h-2 w-2 bg-green-400 rounded-full mr-3"></span>
+                                <span class="text-sm font-medium text-gray-900">Maintenance</span>
+                            </div>
+                            <span class="text-xs text-gray-500">Opérationnel</span>
+                        </li>
+                        <li class="px-4 py-3 flex items-center justify-between hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <span class="h-2 w-2 bg-gray-300 rounded-full mr-3"></span>
+                                <span class="text-sm font-medium text-gray-500 line-through">Marketing (Inactif)</span>
+                            </div>
+                            <span class="text-xs text-gray-400">Entreprise</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" onclick="closeModal('modal-categories')" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:w-auto sm:text-sm">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- SCRIPTS -->
+    <!-- ========================================== -->
+    <script>
+        // Modal Logic
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+            document.body.classList.add('modal-open');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+            document.body.classList.remove('modal-open');
+        }
+
+        // Close on escape
+        document.onkeydown = function(evt) {
+            if (evt.keyCode == 27) {
+                closeModal('modal-new');
+                closeModal('modal-list');
+                closeModal('modal-categories');
+            }
+        };
+
+        // Chart.js Implementation
+        const ctx = document.getElementById('expenseChart').getContext('2d');
+        
+        const dataUSD = [1200, 1900, 3000, 5000, 2000, 3000, 12450];
+        const dataFC = [50000, 120000, 80000, 200000, 90000, 150000, 450000];
+        const labels = ['01 Jan', '05 Jan', '10 Jan', '15 Jan', '20 Jan', '25 Jan', '30 Jan'];
+
+        let expenseChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Dépenses (USD)',
+                    data: dataUSD,
+                    borderColor: '#DC2626',
+                    backgroundColor: 'rgba(220, 38, 38, 0.05)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#DC2626',
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { borderDash: [2, 4], color: '#f3f4f6' },
+                        ticks: {
+                            callback: function(value) { return '$' + value; },
+                            font: { family: 'Inter', size: 10 }
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'Inter', size: 10 } }
+                    }
+                }
+            }
+        });
+
+        // Toggle Logic for Chart
+        function toggleChart(currency) {
+            const btnUsd = document.getElementById('btn-usd');
+            const btnFc = document.getElementById('btn-fc');
+
+            if (currency === 'USD') {
+                btnUsd.className = "px-3 py-1 text-xs font-medium rounded-md shadow bg-white text-gray-900 transition";
+                btnFc.className = "px-3 py-1 text-xs font-medium rounded-md text-gray-500 hover:text-gray-900 transition";
+                
+                expenseChart.data.datasets[0].label = 'Dépenses (USD)';
+                expenseChart.data.datasets[0].data = dataUSD;
+                expenseChart.options.scales.y.ticks.callback = function(value) { return '$' + value; };
+            } else {
+                btnFc.className = "px-3 py-1 text-xs font-medium rounded-md shadow bg-white text-gray-900 transition";
+                btnUsd.className = "px-3 py-1 text-xs font-medium rounded-md text-gray-500 hover:text-gray-900 transition";
+                
+                expenseChart.data.datasets[0].label = 'Dépenses (FC)';
+                expenseChart.data.datasets[0].data = dataFC;
+                expenseChart.options.scales.y.ticks.callback = function(value) { return value + ' FC'; };
+            }
+            expenseChart.update();
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PETROX | Gestion des Documents</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Family: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        petrox: {
+                            red: '#DC2626', // Primary Brand Color
+                            dark: '#111827',
+                            light: '#F9FAFB',
+                            hover: '#B91C1C'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        body.modal-open { overflow: hidden; }
+        
+        /* Custom Switch for Toggle */
+        .toggle-checkbox:checked { right: 0; border-color: #DC2626; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #DC2626; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+
+    <!-- ========================================== -->
+    <!-- DESKTOP TOP NAVIGATION -->
+    <!-- ========================================== -->
+    <header class="fixed top-0 w-full bg-white shadow-sm z-40 h-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
+            <div class="flex-shrink-0 flex items-center gap-2">
+                <div class="w-8 h-8 bg-petrox-red rounded-lg flex items-center justify-center text-white font-bold text-lg">P</div>
+                <span class="text-2xl font-bold tracking-tight text-gray-900">PETROX</span>
+            </div>
+            <nav class="hidden lg:flex space-x-8">
+                <a href="admindashboard.html" class="text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium transition-colors">Tableau de bord</a>
+                <a href="petrox-users.html" class="text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium transition-colors">Utilisateurs</a>
+                <a href="petrox-expenses.html" class="text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium transition-colors">Dépenses</a>
+                <a href="#" class="text-petrox-red border-b-2 border-petrox-red px-1 pt-1 text-sm font-medium flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Documents
+                </a>
+                <a href="#" class="text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium transition-colors">Carburants</a>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center border border-gray-300 overflow-hidden cursor-pointer">
+                    <span class="font-bold text-xs text-gray-600">AD</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========================================== -->
+    <!-- MAIN CONTENT -->
+    <!-- ========================================== -->
+    <main class="pt-24 pb-28 lg:pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        
+        <!-- Page Header -->
+        <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Documents</h1>
+                <p class="text-sm text-gray-500 mt-1">Gérez tous les fichiers de la station.</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="openModal('modal-category')" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    Ajouter une catégorie
+                </button>
+                <button onclick="openModal('modal-upload')" class="bg-petrox-red text-white hover:bg-petrox-hover px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903 4 4 0 11-1.197-6.077a4 4 0 016.777 1.343 4 4 0 013.136 1.041M7 16a4 4 0 003.777-5.507l2.63-3.757a4 4 0 000-5.015L8.777 2.575A4 4 0 007 1.238 4 4 0 007 16zm9.346 1.712a4 4 0 01-1.197 6.077l-2.384-3.395a4 4 0 000-5.015l2.384-3.395a4 4 0 011.197-6.077M10 7a4 4 0 01-1.197-6.077l-2.384 3.395a4 4 0 000 5.015L7.604 10.393a4 4 0 011.197 6.077"></path></svg>
+                    Téléverser un document
+                </button>
+            </div>
+        </div>
+
+        <!-- SECTION: DOCUMENTS LIST -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+            
+            <!-- Filters -->
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex flex-wrap md:flex-nowrap items-center justify-between gap-3">
+                <div class="flex flex-wrap md:flex-nowrap items-center gap-3 w-full md:w-auto">
+                    <input type="text" placeholder="Rechercher par titre..." class="text-sm border-gray-300 rounded-lg shadow-sm focus:border-petrox-red focus:ring-petrox-red p-2 flex-grow md:flex-grow-0">
+                    <select class="text-sm border-gray-300 rounded-lg shadow-sm focus:border-petrox-red focus:ring-petrox-red bg-white p-2">
+                        <option>Catégorie</option>
+                        <option>Opérationnelles</option>
+                        <option>Financières</option>
+                        <option>RH</option>
+                    </select>
+                    <input type="date" value="2026-01-01" class="text-sm border-gray-300 rounded-lg shadow-sm focus:border-petrox-red focus:ring-petrox-red p-2">
+                    <select class="text-sm border-gray-300 rounded-lg shadow-sm focus:border-petrox-red focus:ring-petrox-red bg-white p-2">
+                        <option>Tous</option>
+                        <option>Public</option>
+                        <option>Confidentiel</option>
+                    </select>
+                </div>
+                <button class="bg-petrox-red text-white text-sm font-medium rounded-lg shadow-sm hover:bg-red-700 px-4 py-2">Filtrer</button>
+            </div>
+
+            <!-- Documents Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">Titre du document</th>
+                            <th scope="col" class="px-6 py-3">Catégorie</th>
+                            <th scope="col" class="px-6 py-3">Description</th>
+                            <th scope="col" class="px-6 py-3">Période</th>
+                            <th scope="col" class="px-6 py-3">Visibilité</th>
+                            <th scope="col" class="px-6 py-3">Date d’ajout</th>
+                            <th scope="col" class="px-6 py-3 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <!-- Doc 1 -->
+                        <tr class="bg-white hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">Rapport Ventes Janvier</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">Financières</span>
+                            </td>
+                            <td class="px-6 py-4 truncate max-w-xs">Rapport détaillé des ventes pour le mois de Janvier 2026.</td>
+                            <td class="px-6 py-4 whitespace-nowrap">01 Jan - 31 Jan 2026</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Public</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">12 Jan 2026 – 14:32</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex justify-end space-x-2">
+                                    <button class="text-blue-500 hover:text-blue-700 transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                                    <button class="text-green-500 hover:text-green-700 transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0l-4 4m4-4v11"></path></svg></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Doc 2 -->
+                        <tr class="bg-white hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">Plan d'entretien pompes</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-100 text-orange-800">Opérationnelles</span>
+                            </td>
+                            <td class="px-6 py-4 truncate max-w-xs">Planning d'entretien préventif pour les pompes à carburant.</td>
+                            <td class="px-6 py-4 whitespace-nowrap">Q1 2026</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 ring-red-600">
+                                    <svg class="w-3 h-3 mr-1 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v6m0 0l3-3m-3 3l-3-3M9 3h6a2 2 0 012 2v1m0 0a2 2 0 00-2 2H6a2 2 0 00-2-2V5a2 2 0 002-2h4c0-1.105-1.343-2-2-2H6a2 2 0 00-2 2v1"></path></svg>
+                                    Confidentiel
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">10 Jan 2026 – 09:00</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex justify-end space-x-2">
+                                    <button class="text-blue-500 hover:text-blue-700 transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                                    <button class="text-green-500 hover:text-green-700 transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0l-4 4m4-4v11"></path></svg></button>
+                                    <button class="text-red-500 hover:text-red-700 transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Doc 3 -->
+                        <tr class="bg-white hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">Organigramme RH</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">RH</span>
+                            </td>
+                            <td class="px-6 py-4 truncate max-w-xs">Structure organisationnelle de l'entreprise.</td>
+                            <td class="px-6 py-4 whitespace-nowrap">-</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 ring-red-600">
+                                    <svg class="w-3 h-3 mr-1 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v6m0 0l3-3m-3 3l-3-3M9 3h6a2 2 0 012 2v1m0 0a2 2 0 00-2 2H6a2 2 0 00-2-2V5a2 2 0 002-2h4c0-1.105-1.343-2-2-2H6a2 2 0 00-2 2v1"></path></svg>
+                                    Confidentiel
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">05 Jan 2026 – 11:15</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex justify-end space-x-2">
+                                    <button class="text-blue-500 hover:text-blue-700 transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                                    <button class="text-green-500 hover:text-green-700 transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0l-4 4m4-4v11"></path></svg></button>
+                                    <button class="text-red-500 hover:text-red-700 transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50">
+                <div class="flex-1 flex justify-between sm:hidden">
+                    <a href="#" class="relative inline-flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"> Précédent </a>
+                    <a href="#" class="relative inline-flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"> Suivant </a>
+                </div>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">Affichage <span class="font-medium">1</span>–<span class="font-medium">10</span> sur <span class="font-medium">56</span> documents</p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"> Précédent </a>
+                            <a href="#" class="bg-petrox-red text-white relative inline-flex items-center px-4 py-2 border text-sm font-medium"> 1 </a>
+                            <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"> 2 </a>
+                            <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"> 3 </a>
+                            <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"> Suivant </a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <!-- ========================================== -->
+    <nav class="lg:hidden fixed bottom-0 w-full bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40 overflow-x-auto no-scrollbar">
+        <div class="flex justify-between items-center h-16 px-2 min-w-max w-full">
+            <a href="admindashboard.html" class="flex flex-col items-center justify-center px-3 text-gray-500 hover:text-gray-900 w-20 transition">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                <span class="text-[10px] font-medium leading-none">Accueil</span>
+            </a>
+            <a href="petrox-users.html" class="flex flex-col items-center justify-center px-3 text-gray-500 hover:text-gray-900 w-20 transition">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <span class="text-[10px] font-medium leading-none">Utilisateurs</span>
+            </a>
+            <a href="#" class="flex flex-col items-center justify-center px-3 text-gray-500 hover:text-gray-900 w-20 transition">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-[10px] font-medium leading-none">Dépenses</span>
+            </a>
+            <!-- Active Documents -->
+            <a href="" class="flex flex-col items-center justify-center px-3 text-petrox-red w-20">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span class="text-[10px] font-medium leading-none">Documents</span>
+            </a>
+            <a href="petrox-fuel.html" class="flex flex-col items-center justify-center px-3 text-gray-500 hover:text-gray-900 w-20 transition">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                <span class="text-[10px] font-medium leading-none">Carburants</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- ========================================== -->
+    <!-- MODAL 1: AJOUTER CATÉGORIE -->
+    <!-- ========================================== -->
+    <div id="modal-category" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity backdrop-blur-sm" onclick="closeModal('modal-category')"></div>
+            <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                    <div class="flex justify-between items-center mb-5">
+                        <h3 class="text-lg leading-6 font-bold text-gray-900">Créer une catégorie de documents</h3>
+                        <button onclick="closeModal('modal-category')" class="text-gray-400 hover:text-gray-500">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                    
+                    <form class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700">Nom de la catégorie</label>
+                            <input type="text" placeholder="Ex: Rapports financiers" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-petrox-red focus:ring-petrox-red sm:text-sm border p-2">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700">Description</label>
+                            <textarea rows="2" placeholder="Optionnel : Brève description de la catégorie" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-petrox-red focus:ring-petrox-red sm:text-sm border p-2"></textarea>
+                        </div>
+                        
+                        <!-- Toggle Switch -->
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <label class="text-sm font-medium text-gray-900">Catégorie confidentielle</label>
+                                <p class="text-xs text-gray-500">Visible uniquement par les administrateurs.</p>
+                            </div>
+                            <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                                <input type="checkbox" name="confidential" id="confidential-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                                <label for="confidential-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-red-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">Enregistrer</button>
+                    <button type="button" onclick="closeModal('modal-category')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Annuler</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 2: TÉLÉVERSER DOCUMENT -->
+    <!-- ========================================== -->
+    <div id="modal-upload" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity backdrop-blur-sm" onclick="closeModal('modal-upload')"></div>
+            <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                    <div class="flex justify-between items-center mb-5">
+                        <h3 class="text-lg leading-6 font-bold text-gray-900">Téléverser un document</h3>
+                        <button onclick="closeModal('modal-upload')" class="text-gray-400 hover:text-gray-500">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                    
+                    <form class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700">Catégorie</label>
+                            <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-petrox-red focus:ring-petrox-red sm:text-sm border p-2 bg-white">
+                                <option>Financières</option>
+                                <option>Opérationnelles</option>
+                                <option>RH</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700">Titre du document</label>
+                            <input type="text" placeholder="Ex: Bilan financier Q1 2026" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-petrox-red focus:ring-petrox-red sm:text-sm border p-2">
+                        </div>
+                        
+                        <!-- Optional Period -->
+                        <div class="border-t border-gray-200 pt-4">
+                            <label class="block text-xs font-medium text-gray-700 mb-2">Période (Optionnelle)</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500">De</label>
+                                    <input type="date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-petrox-red focus:ring-petrox-red sm:text-sm border p-2">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500">À</label>
+                                    <input type="date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-petrox-red focus:ring-petrox-red sm:text-sm border p-2">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700">Description</label>
+                            <textarea rows="2" placeholder="Optionnel : Détails du document" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-petrox-red focus:ring-petrox-red sm:text-sm border p-2"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700">Fichier</label>
+                            <input type="file" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-petrox-red hover:file:bg-gray-100 border border-gray-300 rounded-md">
+                        </div>
+                    </form>
+                </div>
+
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-petrox-red text-base font-medium text-white hover:bg-red-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">Téléverser</button>
+                    <button type="button" onclick="closeModal('modal-upload')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Annuler</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- SCRIPTS -->
+    <!-- ========================================== -->
+    <script>
+        // Modal Logic
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+            document.body.classList.add('modal-open');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+            document.body.classList.remove('modal-open');
+        }
+
+        // Close on escape
+        document.onkeydown = function(evt) {
+            if (evt.keyCode == 27) {
+                closeModal('modal-category');
+                closeModal('modal-upload');
+            }
+        };
+    </script>
+
+</body>
+</html>
